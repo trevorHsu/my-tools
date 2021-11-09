@@ -11,9 +11,10 @@ const PanelInsertDom = '#app' // 弹框所处的父级元素位置，弹框的�
  * @param {string} title -弹窗标题
  * @param {string} id -弹窗ID，当ID名称相同时，不重复打开
  * @param {object} props -传给vue模板的props
- * @param {string} root -弹窗的父级元素的css选择器
+ * @param {string} el -弹窗的父级元素的css选择器
+ * 
  */
-const createCommonPopupPanel = ({ title, panel, styleObj, id, props, root } = {}) => {
+const createCommonPopupPanel = function({ title, panel, styleObj, id, props, el } = {}) {
   if (idCache.includes(id)) {
     return
   }
@@ -22,8 +23,8 @@ const createCommonPopupPanel = ({ title, panel, styleObj, id, props, root } = {}
     idCache.push(id)
   }
 
-  const parentElement = root || PanelInsertDom
-  let root = document.querySelector(parentElement)
+  const parentElement = el || PanelInsertDom
+  let root = parentElement instanceof HTMLElement ? parentElement : document.querySelector(parentElement)
   let wrapper = document.createElement('div')
   const domId = `CommonPopupPanel_${Date.now()}_${Math.floor(Math.random() * 1000)}`
 
@@ -31,6 +32,9 @@ const createCommonPopupPanel = ({ title, panel, styleObj, id, props, root } = {}
   root.appendChild(wrapper)
 
   return new Vue({
+    provide: {
+      $invoker: this
+    },
     render: (h) => {
       return h(
         CommonPopupPanel,

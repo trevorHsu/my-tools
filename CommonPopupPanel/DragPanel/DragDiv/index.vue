@@ -95,7 +95,7 @@ export default {
               event.preventDefault() //移动时禁用默认事件
             }
           }
-          document.onmouseup = function (events) {
+          document.onmouseup = function () {
             //清空
             isMouseDown = false
             document.onmousemove = null

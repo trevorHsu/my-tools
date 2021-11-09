@@ -17,7 +17,6 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
 import DragPanel from './DragPanel'
 
 const DEFAULT_HEIGHT = '300PX'
@@ -32,7 +31,7 @@ export default {
         const _this = ctx.parent
         let PanelContent = _this.panel || ''
 
-        if (PanelContent) {
+        if (PanelContent && _this.props) {
           PanelContent.componentOptions.propsData = _this.props
         }
 
@@ -75,31 +74,30 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .common-popup-panel {
   position: absolute;
   outline: none;
-  z-index: 999;
+  z-index: 2;
+}
 
-  &:focus-within {
-    z-index: 9999;
-  }
+.common-popup-panel:focus-within {
+  z-index: 3;
+}
 
-  .padding-box {
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-    padding: 4px;
+.common-popup-panel .padding-box {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 4px; 
+}
 
-    .content {
-      width: 100%;
-      height: 100%;
-      box-sizing: border-box;
-      border: 1px solid #e4e4e4;
-      border-radius: 2px;
-      padding: 4px;
-    }
-  }
-
+.common-popup-panel .padding-box .content {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border: 1px solid #e4e4e4;
+  border-radius: 2px;
+  padding: 4px;
 }
 </style>

@@ -10,8 +10,8 @@
             {{ title }}
           </div>
 
-          <i v-show="closable" class="panel-header-icon iconfont dci-del" @click="handleClose"></i>
-          <i v-show="!noExpand" :class="`panel-header-icon iconfont dci-${expand ? 'shrink' : 'expand'}`" @click="expand = !expand" />
+          <i v-show="closable" class="panel-header-icon icon-del" @click="handleClose"></i>
+          <i v-show="!noExpand" :class="`panel-header-icon icon-${expand ? 'shrink' : 'expand'}`" @click="expand = !expand" />
         </slot>
       </div>
     </template>
@@ -63,7 +63,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .drag-panel {
   overflow: hidden;
   max-height: 100%;
@@ -72,67 +72,69 @@ export default {
   box-shadow: 0 0 24px 0 rgba(160,170,199,0.29);
   background-color: #fff;
   z-index: 999;
+}
 
-  .drag-panel-header {
-    // display: flex;
-    width: 100%;
-    box-sizing: border-box;
-    // justify-content: space-between;
-    height: 40px;
-    line-height: 40px;
-    padding: 0 15px;
-    font-size: 14px;
-    color: #fff;
-    background-color: #428BDC;
-    border-radius: 4px 4px 0 0;
+.drag-panel .drag-panel-header {
+  width: 100%;
+  box-sizing: border-box;
+  height: 40px;
+  line-height: 40px;
+  padding: 0 15px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #428BDC;
+  border-radius: 4px 4px 0 0;
+}
 
-    .iconfont {
-      cursor: pointer;
-    }
+.drag-panel .drag-panel-header .header-title-text {
+  float: left;
+}
 
-    .header-title-text {
-      display: inline-block;
-    }
+.drag-panel .drag-panel-header .panel-header-icon {
+  cursor: pointer;
+  transition: .2s;
+  float: right;
+  margin-right: 6px;
+  color: #fff;
+}
 
-    .panel-header-icon {
-      transition: .2s;
-      float: right;
-      margin-right: 6px;
+.icon-del::after {
+  content: url(./icon/del.svg);
+  display: inline-block;
+}
 
-      &:hover {
-        text-shadow: 0 0 6px rgba(247, 249, 237,.7);
-      }
-    }
-  }
+.icon-shrink::after {
+  content: url(./icon/shrink.svg);
+  display: inline-block;
+}
 
-  .drag-panel-container {
-    opacity: 1;
-    height: calc(100% - 40px);
-  }
+.icon-expand::after {
+  content: url(./icon/expand.svg);
+  display: inline-block;
+}
 
-  &.mini {
-    max-height: 40px;
-    max-width: 200px;
-    background: transparent;
-    opacity: .6;
-    // box-shadow: rgba(0, 0, 0, 0.2) 1px 1px 3px 2px;
-    border-radius: 6px;
-    transform: translateY(2px);
+.drag-panel .drag-panel-container {
+  opacity: 1;
+  height: calc(100% - 40px);
+}
 
-    &:hover {
-      box-shadow: rgba(0, 0, 0, 0.24) 1px 2px 4px 1px;
-      opacity: 1;
-      transform: translateY(-1px);
-    }
+.drag-panel.mini {
+  max-height: 40px;
+  max-width: 200px;
+  background: transparent;
+  opacity: .6;
+  border-radius: 6px;
+  transform: translateY(2px);
+}
 
-    // .drag-panel-header {
-    //   border-radius: 6px;
-    // }
+.drag-panel.mini:hover {
+  box-shadow: rgba(0, 0, 0, 0.24) 1px 2px 4px 1px;
+  opacity: 1;
+  transform: translateY(-1px);
+}
 
-    .drag-panel-container {
-      opacity: 0;
-      height: 0;
-    }
-  }
+.drag-panel.mini .drag-panel-container {
+  opacity: 0;
+  height: 0;
 }
 </style>
