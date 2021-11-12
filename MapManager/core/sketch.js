@@ -210,7 +210,7 @@ const SKETCH = {
         const { sketchLayer } = instData
 
         let graphics = geometries.map(geometry => {
-          return this.$MapManager.execute('constructGraphic', geometry)
+          return this.execute('constructGraphic', geometry)
         })
 
         sketchLayer.addMany(graphics)
@@ -248,7 +248,7 @@ const SKETCH = {
         let graphics = geometries.map(geometry => {
           let symbol = getSymbol(geometry, sketchStyle)
           let geoData = { geometry, symbol }
-          return this.$MapManager.execute('constructGraphic', geoData)
+          return this.execute('constructGraphic', geoData)
         })
 
         sketchLayer.addMany(graphics)
