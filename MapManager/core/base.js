@@ -175,7 +175,7 @@ export default {
       }
     },
     async getGeometryBuffer ({ geometry, distance, unit = 'meters' }) {
-      await this.$DCImap.loadGisConstructor([
+      await this.$MapManager.loadGisConstructor([
         { name: 'GeometryService', path: 'esri/tasks/GeometryService' },
         { name: 'BufferParameters', path: 'esri/tasks/support/BufferParameters' }
       ])

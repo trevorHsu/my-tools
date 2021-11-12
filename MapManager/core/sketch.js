@@ -165,7 +165,7 @@ const SKETCH = {
       let instData = this.getCustomSketchInst(instId)
 
       if (!instData) {
-        console.log('未找到动态绘制实例')
+        console.log('sketch instance not found')
         return false
       } else {
         cb && cb(instData)
@@ -176,7 +176,7 @@ const SKETCH = {
       let listenerData = listenerId && this.customSketches.listeners[listenerId]
 
       if (!listenerData) {
-        console.log('未找到动态绘制实例监听器')
+        console.log('sketch instance\'s listener not found')
         return false
       } else {
         this._validateInstId(listenerData.instId, instData => {
@@ -210,7 +210,7 @@ const SKETCH = {
         const { sketchLayer } = instData
 
         let graphics = geometries.map(geometry => {
-          return this.$DCImap.execute('constructGraphic', geometry)
+          return this.$MapManager.execute('constructGraphic', geometry)
         })
 
         sketchLayer.addMany(graphics)
@@ -248,7 +248,7 @@ const SKETCH = {
         let graphics = geometries.map(geometry => {
           let symbol = getSymbol(geometry, sketchStyle)
           let geoData = { geometry, symbol }
-          return this.$DCImap.execute('constructGraphic', geoData)
+          return this.$MapManager.execute('constructGraphic', geoData)
         })
 
         sketchLayer.addMany(graphics)

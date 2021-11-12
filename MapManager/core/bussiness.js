@@ -40,7 +40,7 @@ export default {
 
       return result
     },
-    getGeometryLength(geometry) { // 最终结果的单位是米
+    getGeometryLength(geometry) { // 最终结果的单位是米 meter
       const ESRI = this.$gisConstructor
       let length = 0
 
@@ -52,7 +52,7 @@ export default {
 
       return length.toFixed(2)
     },
-    getGeometryArea(geometry) { // 最终结果的单位是平方米
+    getGeometryArea(geometry) { // 最终结果的单位是平方米 square meter
       const ESRI = this.$gisConstructor
       let area = 0
 
