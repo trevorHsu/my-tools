@@ -136,5 +136,6 @@ export default {
 .drag-panel.mini .drag-panel-container {
   opacity: 0;
   height: 0;
+  overflow: hidden;
 }
 </style>
