@@ -115,11 +115,12 @@ export default {
 
       loop()
     },
-    goTo (viewpoint, options) {
-      this.$mapView.goTo({
-        target: viewpoint,
-        ...options
-      })
+    goTo (target, options) {
+      this.$mapView.goTo(target, options)
+      // this.$mapView.goTo({
+      //   target: viewpoint,
+      //   ...options
+      // })
     },
     goToGeometry (obj, cb) {
       if (typeof obj === 'string' || obj.geometry || obj.type) {
@@ -175,11 +176,6 @@ export default {
       }
     },
     async getGeometryBuffer ({ geometry, distance, unit = 'meters' }) {
-      await this.$MapManager.loadGisConstructor([
-        { name: 'GeometryService', path: 'esri/tasks/GeometryService' },
-        { name: 'BufferParameters', path: 'esri/tasks/support/BufferParameters' }
-      ])
-
       const isArrayGeo = geometry instanceof Array
       const ESRI = this.$gisConstructor
       const GeometryService = new ESRI.GeometryService({
@@ -207,6 +203,11 @@ export default {
       } catch (err) {
         console.log(err)
       }
+    },
+    simplifyGeometry (geometry) {
+      const ESRI = this.$gisConstructor
+
+      return ESRI.geometryEngine.simplify(geometry)
     }
   }
 }

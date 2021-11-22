@@ -76,6 +76,11 @@ class EasySketch { // 自定义绘制地图图形要素
     enableGoTo && this._execute('goTo', res, opt)
     return res
   }
+  getSketches ({ type = 'geometry' } = {}) {
+    let instId = this._instContext()
+
+    return this._execute('getSketches', instId, { type })
+  }
   dispose () {
     this.vm && this.instId && this._execute('destroyCustomSketch', this.instId)
     this.vm = null

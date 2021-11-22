@@ -24,7 +24,7 @@
  * destroyCustomSketch：销毁某一实例，包括该实例下的所有监听器
  */
 
-const ID_TYPE = {
+ const ID_TYPE = {
   sketch: 'CUSTOM_SKETCH',
   listener: 'CUSTOM_SKETCH_LISTENER'
 }
@@ -34,6 +34,113 @@ const genId = function(idType) {
   let randomNum = Math.random() * 100000 >> 0
 
   return `${idType}-${timestamp}-${randomNum}`
+}
+
+const GEO_CENTER = {
+  getAreaCenter(points) {
+    function Area(p0, p1, p2) {
+      let area = 0.0
+      area = p0[0] * p1[1] + p1[0] * p2[1] + p2[0] * p0[1] 
+        - p1[0] * p0[1] - p2[0] * p1[1] - p0[0] * p2[1]
+      
+      return area / 2
+    }
+  
+    let sum_x = 0
+    let sum_y = 0
+    let sum_area = 0
+    let p0 = points[0]
+    let p1 = points[1]
+  
+    for (let i = 2; i < points.length; i++) {
+      let p2 = points[i]
+      let area = Area(p0, p1, p2)
+      sum_area += area
+      sum_x += (p0[0] + p1[0] + p2[0]) * area
+      sum_y += (p0[1] + p1[1] + p2[1]) * area
+      p1 = p2
+    }
+  
+    let xx = sum_x / sum_area / 3
+    let yy = sum_y / sum_area / 3
+  
+    return [xx, yy]
+  },
+  getLengthCenter(points) {
+    let min_x = Infinity
+    let min_y = Infinity
+    let max_x = -Infinity
+    let max_y = -Infinity
+
+    points.forEach(point => {
+      if (point[0] < min_x) {
+        min_x = point[0]
+      }
+
+      if (point[0] > max_x) {
+        max_x = point[0]
+      }
+
+      if (point[1] < min_y) {
+        min_y = point[1]
+      }
+
+      if (point[1] > max_y) {
+        max_y = point[1]
+      }
+    })
+
+    let xx = (max_x - min_x) / 2 + min_x
+    let yy = (max_y - min_y) / 2 + min_y
+
+    return [xx, yy]
+  }
+}
+
+const genTextGraphic = function($MapManager, graphic, textSymbol) {
+  let result = null
+  let text = textSymbol.text
+
+  if (text instanceof Function) {
+    text = text(graphic)
+  }
+
+  if (text) {
+    const symbol = Object.assign(
+      {
+        color: "white",
+        haloColor: "black",
+        haloSize: "1px",
+        xoffset: 3,
+        yoffset: 3,
+        font: {
+          size: 14
+        }
+      }, textSymbol, { type: "text", text }
+    )
+
+    const originGeometry = $MapManager.execute('simplifyGeometry', graphic.geometry)
+    let geometry = null
+    
+    if (originGeometry.type === 'point') {
+      geometry = originGeometry
+    } else {
+      const center = originGeometry.paths 
+        ? GEO_CENTER.getLengthCenter(originGeometry.paths[0])
+        : GEO_CENTER.getAreaCenter(originGeometry.rings[0])
+      geometry = { type: 'point', x: center[0], y: center[1] }
+    }
+
+    result = geometry && $MapManager.execute('constructGraphic', 
+      {
+        geometry, 
+        symbol,
+        attributes: { isTextSymbol: true, text }
+      }
+    )
+  }
+
+  return result
 }
 
 const SKETCH = {
@@ -77,6 +184,7 @@ const SKETCH = {
       const ID = genId(ID_TYPE.sketch)
       const lineColor = [211, 132, 80, 0.7]
       const sketchStyle = {
+        textSymbol: null,
         pointSymbol: (customSketchStyle.pointSymbol) || {
           type: 'simple-marker',
           style: 'circle',
@@ -108,6 +216,8 @@ const SKETCH = {
         ? !!customSketchStyle.updateOnGraphicClick
         : true
       const layerIndex = (customSketchStyle.layerIndex) || 2
+
+      customSketchStyle.textSymbol && (sketchStyle.textSymbol = customSketchStyle.textSymbol)
 
       let sketchLayer = new ESRI.GraphicsLayer({ title: 'sketchLayer' })
       let bufferLayer = new ESRI.GraphicsLayer({ title: 'bufferLayer' }) // buffer相关功能未开发
@@ -251,6 +361,12 @@ const SKETCH = {
           return this.execute('constructGraphic', geoData)
         })
 
+        sketchStyle.textSymbol && graphics.push(
+          ...graphics
+            .map(item => genTextGraphic(this, item, sketchStyle.textSymbol))
+            .filter(item => item)
+        )
+
         sketchLayer.addMany(graphics)
 
         cb && cb(graphics)
@@ -281,6 +397,28 @@ const SKETCH = {
         cb && cb()
       })
     },
+    // data
+    getSketches(instId, { type = 'geometry' } = {}) {
+      let result = []
+
+      this._validateInstId(instId, instData => {
+        const { sketchLayer } = instData
+        const graphics = sketchLayer.graphics.items
+
+        switch (type) {
+          case 'graphic':
+            result.push(...graphics)
+            break
+          case 'geometry':
+          default:
+            result.push(...graphics.map(item => this.execute('geometryToJson', item.geometry)))
+            break
+        }
+
+      })
+
+      return result
+    },
     // listener
     bindCustomSketchListener(instId, type, func, cb) { // callback returns a listenerId
       let result
@@ -310,7 +448,11 @@ const SKETCH = {
       this._validateInstId(instId, instData => {
         const ID = genId(ID_TYPE.listener)
         const { viewModel, listenerIds } = instData
-        const sketchListener = viewModel.view.popup.on(type, func)
+        const sketchListener = viewModel.view.popup.on(type, 
+          function(e) {
+            func(e, viewModel.view.popup.selectedFeature)
+          }  
+        )
 
         listenerIds.push(ID)
         this.customSketches.listeners[ID] = {
@@ -333,18 +475,21 @@ const SKETCH = {
         const ID = genId(ID_TYPE.listener)
         const { viewModel, listenerIds, sketchLayer, bufferLayer } = instData
         const sketchListener = viewModel.view.on(type, (e) => {
+          
           viewModel.view.hitTest(e).then(res => {
             if (res && res.results.length) {
               let refinedList = []
 
               res.results.forEach(item => {
-                (item.graphic.layer === sketchLayer || item.graphic.layer === bufferLayer) && refinedList.push(item)
+                item.graphic.layer && 
+                (item.graphic.layer === sketchLayer || item.graphic.layer === bufferLayer) && 
+                refinedList.push(item)
               })
 
               refinedList.length && func({
                 results: refinedList,
                 screenPoint: res.screenPoint
-              })
+              }, e)
             }
           })
         })

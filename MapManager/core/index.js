@@ -175,10 +175,24 @@ class MapManager {
       .push(mapViewController)
   }
 
+  uncharge(mapViewName) {
+    const chargingMaps = this.registeredData.propOf($CHARGING_MAPS)
+    let index = -1
+
+    for (let i = 0; i < chargingMaps.length; i++) {
+      if (chargingMaps[i].propOf($MAP_VIEW_NAME) === mapViewName) {
+        index = i
+        break
+      }
+    }
+
+    index !== -1 && chargingMaps.splice(index, 1)
+  }
+
   showChargingMaps() {
     return this.registeredData
       .propOf($CHARGING_MAPS)
-      .map(item => item[$MAP_VIEW_NAME])
+      .map(mapViewController => mapViewController.propOf($MAP_VIEW_NAME))
   }
 
   dispose() {
