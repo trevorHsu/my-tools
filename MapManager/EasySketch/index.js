@@ -32,10 +32,10 @@ class EasySketch { // 自定义绘制地图图形要素
 
     return this._execute('bindCustomSketchPopupListener', instId, type, handler)
   }
-  bindMapviewGraphicListener (type, handler) {
+  bindMapviewGraphicListener (type, handler, options = {}) {
     let instId = this._instContext()
 
-    return this._execute('bindMapviewGraphicListener', instId, type, handler)
+    return this._execute('bindMapviewGraphicListener', instId, type, handler, options)
   }
   draw (type, noClear) {
     let instId = this._instContext()

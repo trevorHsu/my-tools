@@ -468,7 +468,7 @@ const SKETCH = {
 
       return result
     },
-    bindMapviewGraphicListener(instId, type, func, cb) {
+    bindMapviewGraphicListener(instId, type, func, { cb, allowEmpty = false } = {}) {
       let result
 
       this._validateInstId(instId, instData => {
@@ -488,6 +488,11 @@ const SKETCH = {
 
               refinedList.length && func({
                 results: refinedList,
+                screenPoint: res.screenPoint
+              }, e)
+            } else if (allowEmpty) {
+              func({
+                results: [],
                 screenPoint: res.screenPoint
               }, e)
             }
